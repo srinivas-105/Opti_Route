@@ -1,0 +1,61 @@
+store_id,store_name,address,area,latitude,longitude,priority,avg_visit_duration_min,store_type
+S001,Banjara Hills Pharmacy 1,"Plot 71, Banjara Hills, Hyderabad",Banjara Hills,17.421177,78.4157,high,24,Pharmacy
+S002,Jubilee Hills Grocery 2,"Plot 190, Jubilee Hills, Hyderabad",Jubilee Hills,17.417382,78.3912,low,15,Grocery
+S003,Hitech City Electronics 3,"Plot 24, Hitech City, Hyderabad",Hitech City,17.45072,78.355071,high,24,Electronics
+S004,Kondapur Apparel 4,"Plot 51, Kondapur, Hyderabad",Kondapur,17.460514,78.340661,low,44,Apparel
+S005,Gachibowli Hardware 5,"Plot 72, Gachibowli, Hyderabad",Gachibowli,17.436781,78.346868,high,20,Hardware
+S006,Madhapur Medical Equipment 6,"Plot 40, Madhapur, Hyderabad",Madhapur,17.456226,78.38511,high,31,Medical Equipment
+S007,Kukatpally FMCG Distributor 7,"Plot 92, Kukatpally, Hyderabad",Kukatpally,17.478788,78.394797,medium,26,FMCG Distributor
+S008,SR Nagar Auto Parts 8,"Plot 138, SR Nagar, Hyderabad",SR Nagar,17.454085,78.460389,high,34,Auto Parts
+S009,Ameerpet Bakery 9,"Plot 161, Ameerpet, Hyderabad",Ameerpet,17.420552,78.440427,low,33,Bakery
+S010,Begumpet Restaurant 10,"Plot 12, Begumpet, Hyderabad",Begumpet,17.444894,78.477283,low,24,Restaurant
+S011,Secunderabad Pharmacy 11,"Plot 60, Secunderabad, Hyderabad",Secunderabad,17.450823,78.517709,high,34,Pharmacy
+S012,LB Nagar Grocery 12,"Plot 94, LB Nagar, Hyderabad",LB Nagar,17.340319,78.556827,high,33,Grocery
+S013,Mehdipatnam Electronics 13,"Plot 180, Mehdipatnam, Hyderabad",Mehdipatnam,17.388011,78.443607,low,14,Electronics
+S014,Tolichowki Apparel 14,"Plot 187, Tolichowki, Hyderabad",Tolichowki,17.407665,78.406546,high,20,Apparel
+S015,Manikonda Hardware 15,"Plot 164, Manikonda, Hyderabad",Manikonda,17.40049,78.380798,low,45,Hardware
+S016,Nanakramguda Medical Equipment 16,"Plot 197, Nanakramguda, Hyderabad",Nanakramguda,17.414185,78.345971,high,24,Medical Equipment
+S017,Shamshabad FMCG Distributor 17,"Plot 103, Shamshabad, Hyderabad",Shamshabad,17.267172,78.441002,medium,14,FMCG Distributor
+S018,Uppal Auto Parts 18,"Plot 184, Uppal, Hyderabad",Uppal,17.393739,78.577516,medium,23,Auto Parts
+S019,Dilsukhnagar Bakery 19,"Plot 165, Dilsukhnagar, Hyderabad",Dilsukhnagar,17.375018,78.519925,medium,19,Bakery
+S020,Attapur Restaurant 20,"Plot 144, Attapur, Hyderabad",Attapur,17.351995,78.422665,low,26,Restaurant
+S021,Banjara Hills Pharmacy 21,"Plot 150, Banjara Hills, Hyderabad",Banjara Hills,17.425481,78.431837,medium,33,Pharmacy
+S022,Jubilee Hills Grocery 22,"Plot 131, Jubilee Hills, Hyderabad",Jubilee Hills,17.420573,78.427002,medium,15,Grocery
+S023,Hitech City Electronics 23,"Plot 40, Hitech City, Hyderabad",Hitech City,17.457331,78.388244,low,20,Electronics
+S024,Kondapur Apparel 24,"Plot 17, Kondapur, Hyderabad",Kondapur,17.471983,78.356486,medium,34,Apparel
+S025,Gachibowli Hardware 25,"Plot 65, Gachibowli, Hyderabad",Gachibowli,17.443836,78.347622,low,10,Hardware
+S026,Madhapur Medical Equipment 26,"Plot 138, Madhapur, Hyderabad",Madhapur,17.455511,78.376082,medium,31,Medical Equipment
+S027,Kukatpally FMCG Distributor 27,"Plot 117, Kukatpally, Hyderabad",Kukatpally,17.479162,78.396991,high,26,FMCG Distributor
+S028,SR Nagar Auto Parts 28,"Plot 130, SR Nagar, Hyderabad",SR Nagar,17.460676,78.461678,high,29,Auto Parts
+S029,Ameerpet Bakery 29,"Plot 51, Ameerpet, Hyderabad",Ameerpet,17.451067,78.449007,high,33,Bakery
+S030,Begumpet Restaurant 30,"Plot 200, Begumpet, Hyderabad",Begumpet,17.4523,78.470675,low,10,Restaurant
+S031,Secunderabad Pharmacy 31,"Plot 29, Secunderabad, Hyderabad",Secunderabad,17.443858,78.497844,medium,29,Pharmacy
+S032,LB Nagar Grocery 32,"Plot 146, LB Nagar, Hyderabad",LB Nagar,17.338778,78.541035,high,15,Grocery
+S033,Mehdipatnam Electronics 33,"Plot 195, Mehdipatnam, Hyderabad",Mehdipatnam,17.403076,78.449441,low,18,Electronics
+S034,Tolichowki Apparel 34,"Plot 141, Tolichowki, Hyderabad",Tolichowki,17.388436,78.418711,high,26,Apparel
+S035,Manikonda Hardware 35,"Plot 55, Manikonda, Hyderabad",Manikonda,17.403107,78.394264,low,22,Hardware
+S036,Nanakramguda Medical Equipment 36,"Plot 172, Nanakramguda, Hyderabad",Nanakramguda,17.433918,78.34896,low,33,Medical Equipment
+S037,Shamshabad FMCG Distributor 37,"Plot 31, Shamshabad, Hyderabad",Shamshabad,17.251824,78.429503,high,24,FMCG Distributor
+S038,Uppal Auto Parts 38,"Plot 142, Uppal, Hyderabad",Uppal,17.387861,78.540641,high,24,Auto Parts
+S039,Dilsukhnagar Bakery 39,"Plot 16, Dilsukhnagar, Hyderabad",Dilsukhnagar,17.349088,78.532414,high,14,Bakery
+S040,Attapur Restaurant 40,"Plot 19, Attapur, Hyderabad",Attapur,17.377617,78.447185,low,25,Restaurant
+S041,Banjara Hills Pharmacy 41,"Plot 139, Banjara Hills, Hyderabad",Banjara Hills,17.406739,78.434117,high,40,Pharmacy
+S042,Jubilee Hills Grocery 42,"Plot 105, Jubilee Hills, Hyderabad",Jubilee Hills,17.42152,78.406019,high,16,Grocery
+S043,Hitech City Electronics 43,"Plot 109, Hitech City, Hyderabad",Hitech City,17.430977,78.371042,medium,39,Electronics
+S044,Kondapur Apparel 44,"Plot 168, Kondapur, Hyderabad",Kondapur,17.474853,78.341767,low,16,Apparel
+S045,Gachibowli Hardware 45,"Plot 28, Gachibowli, Hyderabad",Gachibowli,17.422425,78.358029,high,22,Hardware
+S046,Madhapur Medical Equipment 46,"Plot 109, Madhapur, Hyderabad",Madhapur,17.435908,78.389445,high,27,Medical Equipment
+S047,Kukatpally FMCG Distributor 47,"Plot 20, Kukatpally, Hyderabad",Kukatpally,17.493205,78.414579,medium,45,FMCG Distributor
+S048,SR Nagar Auto Parts 48,"Plot 139, SR Nagar, Hyderabad",SR Nagar,17.425716,78.457286,high,15,Auto Parts
+S049,Ameerpet Bakery 49,"Plot 43, Ameerpet, Hyderabad",Ameerpet,17.454455,78.462648,medium,41,Bakery
+S050,Begumpet Restaurant 50,"Plot 16, Begumpet, Hyderabad",Begumpet,17.441054,78.483686,high,34,Restaurant
+S051,Secunderabad Pharmacy 51,"Plot 117, Secunderabad, Hyderabad",Secunderabad,17.419986,78.493917,medium,37,Pharmacy
+S052,LB Nagar Grocery 52,"Plot 143, LB Nagar, Hyderabad",LB Nagar,17.357064,78.56062,low,41,Grocery
+S053,Mehdipatnam Electronics 53,"Plot 15, Mehdipatnam, Hyderabad",Mehdipatnam,17.379992,78.428668,low,44,Electronics
+S054,Tolichowki Apparel 54,"Plot 13, Tolichowki, Hyderabad",Tolichowki,17.385738,78.412244,low,40,Apparel
+S055,Manikonda Hardware 55,"Plot 41, Manikonda, Hyderabad",Manikonda,17.402114,78.404109,high,42,Hardware
+S056,Nanakramguda Medical Equipment 56,"Plot 153, Nanakramguda, Hyderabad",Nanakramguda,17.408604,78.340433,high,25,Medical Equipment
+S057,Shamshabad FMCG Distributor 57,"Plot 146, Shamshabad, Hyderabad",Shamshabad,17.250451,78.446464,high,12,FMCG Distributor
+S058,Uppal Auto Parts 58,"Plot 150, Uppal, Hyderabad",Uppal,17.410075,78.556569,low,43,Auto Parts
+S059,Dilsukhnagar Bakery 59,"Plot 172, Dilsukhnagar, Hyderabad",Dilsukhnagar,17.361455,78.514531,low,30,Bakery
+S060,Attapur Restaurant 60,"Plot 172, Attapur, Hyderabad",Attapur,17.350947,78.428631,low,29,Restaurant

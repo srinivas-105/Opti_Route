@@ -1,0 +1,26 @@
+{
+  "mae": 0.0528,
+  "rmse": 0.0629,
+  "r2": 0.7892,
+  "cv_r2_mean": 0.8041,
+  "cv_r2_std": 0.0102,
+  "n_train": 2923,
+  "n_test": 731,
+  "top_features": {
+    "stop_position_norm": 0.4053152799606323,
+    "priority_encoded": 0.26444000005722046,
+    "stop_sequence": 0.0834726020693779,
+    "traffic_multiplier": 0.04703615605831146,
+    "is_rush_hour": 0.04602309316396713,
+    "traffic_category": 0.03686883673071861,
+    "daily_stop_count": 0.01098901778459549,
+    "longitude": 0.009196711704134941,
+    "latitude": 0.008565357886254787,
+    "driver_avg_daily_visits": 0.008331907913088799,
+    "driver_avg_efficiency": 0.00814251322299242,
+    "driver_avg_speed_inferred": 0.0076772659085690975,
+    "visit_hour": 0.0076294755563139915,
+    "daily_total_distance_km": 0.007562858983874321,
+    "store_avg_duration": 0.0074586947448551655
+  }
+}

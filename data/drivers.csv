@@ -1,0 +1,13 @@
+driver_id,name,avg_speed_kmh,experience_years,vehicle_type,home_lat,home_lng
+D01,Driver 1,44,6,bike,17.286863,78.510932
+D02,Driver 2,48,2,bike,17.392527,78.487877
+D03,Driver 3,34,15,car,17.461173,78.562554
+D04,Driver 4,41,5,bike,17.372637,78.495344
+D05,Driver 5,39,10,van,17.390788,78.520273
+D06,Driver 6,47,5,van,17.305717,78.562325
+D07,Driver 7,38,2,bike,17.433483,78.41779
+D08,Driver 8,39,10,bike,17.428522,78.427419
+D09,Driver 9,50,14,car,17.386082,78.436924
+D10,Driver 10,31,2,van,17.369715,78.442036
+D11,Driver 11,30,6,bike,17.412423,78.439091
+D12,Driver 12,53,8,van,17.426133,78.498881

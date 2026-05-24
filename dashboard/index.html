@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>OptiRoute — AI Route Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#0f1117; --surf:#1a1d27; --surf2:#222636; --border:#2e3350;
+      --accent:#5c6ef8; --green:#00c896; --warn:#f7a535; --red:#f75555;
+      --text:#e8eaf6; --muted:#7b82a8;
+    }
+    body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; height:100vh; overflow:hidden; }
+    .shell   { display:grid; grid-template-rows:52px 1fr; height:100vh; }
+    .content { display:grid; grid-template-columns:380px 1fr; overflow:hidden; }
+    header {
+      background:var(--surf); border-bottom:1px solid var(--border);
+      display:flex; align-items:center; gap:14px; padding:0 22px; z-index:100;
+    }
+    .logo { font-size:1.15rem; font-weight:800; color:var(--accent); }
+    .logo span { color:var(--green); }
+    .pill {
+      margin-left:auto; padding:3px 12px; border-radius:99px; font-size:.72rem;
+      font-weight:700; border:1px solid; text-transform:uppercase; letter-spacing:.05em;
+    }
+    .pill-live{color:var(--green);border-color:var(--green);}
+    .pill-mock{color:var(--warn);border-color:var(--warn);}
+    .pill-off{color:var(--muted);border-color:var(--muted);}
+    aside {
+      background:var(--surf); border-right:1px solid var(--border);
+      display:flex; flex-direction:column; overflow-y:auto;
+    }
+    .tabs{display:flex;padding:14px 16px 0;gap:4px;}
+    .tab{flex:1;padding:7px;text-align:center;border-radius:8px 8px 0 0;font-size:.8rem;font-weight:600;cursor:pointer;border:1px solid transparent;border-bottom:none;background:var(--surf2);color:var(--muted);}
+    .tab.on{background:var(--surf);color:var(--text);border-color:var(--border);}
+    .pane{padding:16px 18px;border-bottom:1px solid var(--border);}
+    .pane h3{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:13px;}
+    label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:4px;}
+    input,select{width:100%;padding:8px 11px;background:var(--surf2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:.85rem;outline:none;}
+    input:focus,select:focus{border-color:var(--accent);}
+    .fg{margin-bottom:11px;}
+    .btn{width:100%;padding:9px;border:none;border-radius:7px;cursor:pointer;font-size:.88rem;font-weight:600;transition:opacity .15s;}
+    .btn:disabled{opacity:.45;cursor:not-allowed;}
+    .btn-p{background:var(--accent);color:#fff;}
+    .btn-s{background:var(--surf2);color:var(--text);border:1px solid var(--border);margin-top:6px;display:block;text-align:center;text-decoration:none;}
+
+    .place-search-wrap{position:relative;margin-bottom:8px;}
+    .place-search-wrap input{width:100%;padding:8px 36px 8px 11px;background:var(--surf2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:.83rem;outline:none;}
+    .place-search-wrap input:focus{border-color:var(--accent);}
+    .place-search-wrap .sico{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem;pointer-events:none;}
+
+    .stop-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;min-height:28px;}
+    .stop-chip{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:.73rem;font-weight:600;background:rgba(92,110,248,.18);border:1px solid rgba(92,110,248,.4);color:var(--text);}
+    .stop-chip .cnum{color:var(--accent);font-weight:800;}
+    .stop-chip .cdel{cursor:pointer;color:var(--red);font-size:.8rem;margin-left:2px;border:none;background:none;padding:0;}
+    .empty-hint{font-size:.73rem;color:var(--muted);font-style:italic;padding:4px 0;}
+
+    .store-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+    .chip{padding:3px 9px;border-radius:99px;font-size:.72rem;cursor:pointer;background:var(--surf2);border:1px solid var(--border);color:var(--muted);transition:all .15s;}
+    .chip:hover{border-color:var(--accent);color:var(--text);}
+    .chip.sel{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;}
+    .card{background:var(--surf2);border:1px solid var(--border);border-radius:9px;padding:11px 13px;}
+    .card .v{font-size:1.25rem;font-weight:700;color:var(--green);}
+    .card .l{font-size:.7rem;color:var(--muted);margin-top:2px;}
+    .bar-wrap{height:5px;background:var(--border);border-radius:3px;margin:6px 0 12px;}
+    .bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .5s;}
+
+    .stop-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+    .stop-row:last-child{border-bottom:none;}
+    .stop-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.73rem;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px;}
+    .sname{font-size:.85rem;font-weight:600;}
+    .smeta{font-size:.72rem;color:var(--muted);margin-top:1px;}
+    .seta{font-size:.72rem;color:var(--green);font-weight:600;margin-top:2px;}
+    .sscore{font-size:.7rem;color:var(--accent);margin-top:1px;}
+
+    .day-card{padding:9px 11px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:border-color .15s;}
+    .day-card:hover{border-color:var(--accent);}
+
+    .map-wrap{position:relative;}
+    #map{width:100%;height:100%;}
+    #mapError{display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--surf2);color:var(--muted);text-align:center;padding:40px;}
+    #mapError .eico{font-size:3rem;}
+    #mapError .etitle{font-size:1.1rem;font-weight:700;color:var(--red);}
+    #mapError .ebody{font-size:.82rem;max-width:480px;line-height:1.6;}
+    #mapError code{background:var(--surf);padding:2px 6px;border-radius:4px;font-size:.8rem;color:var(--warn);}
+
+    #legend{position:absolute;top:14px;right:14px;background:rgba(26,29,39,.95);border:1px solid var(--border);border-radius:9px;padding:11px 15px;font-size:.75rem;display:none;min-width:160px;z-index:5;}
+    .lh{font-weight:700;margin-bottom:7px;}
+    .li{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+    .li:last-child{margin-bottom:0;}
+    .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .lline{width:22px;height:4px;border-radius:2px;flex-shrink:0;}
+
+    #routeStatus{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(26,29,39,.95);border:1px solid var(--border);border-radius:8px;padding:7px 16px;font-size:.76rem;color:var(--green);display:none;z-index:10;white-space:nowrap;}
+
+    .spin{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .65s linear infinite;margin:18px auto;}
+    @keyframes sp{to{transform:rotate(360deg);}}
+    .badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:.67rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-left:6px;}
+    .badge-live{background:rgba(0,200,150,.12);color:var(--green);border:1px solid rgba(0,200,150,.3);}
+    .badge-mock{background:rgba(247,165,53,.12);color:var(--warn);border:1px solid rgba(247,165,53,.3);}
+
+    /* dark autocomplete */
+    .pac-container{background:var(--surf2)!important;border:1px solid var(--border)!important;border-radius:8px!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important;margin-top:2px!important;font-family:'Segoe UI',system-ui,sans-serif!important;}
+    .pac-item{padding:8px 12px!important;color:var(--muted)!important;font-size:.82rem!important;cursor:pointer!important;border-top:1px solid var(--border)!important;}
+    .pac-item:first-child{border-top:none!important;}
+    .pac-item:hover,.pac-item-selected{background:var(--accent)!important;color:#fff!important;}
+    .pac-item-query{color:var(--text)!important;font-weight:600!important;}
+    .pac-matched{color:var(--green)!important;font-weight:700!important;}
+    .pac-icon,.pac-logo::after{display:none!important;}
+
+    /* debug panel */
+    #dbg{position:absolute;bottom:50px;left:10px;background:rgba(0,0,0,.8);border:1px solid #f75555;border-radius:6px;padding:8px 12px;font-size:.7rem;color:#f7a535;max-width:340px;display:none;z-index:20;line-height:1.6;}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div class="logo">Opti<span>Route</span></div>
+    <span style="font-size:.78rem;color:var(--muted)">AI Sales Route Optimiser</span>
+    <div class="pill pill-off" id="pill">● Connecting…</div>
+  </header>
+  <div class="content">
+    <aside>
+      <div class="tabs">
+        <div class="tab on" id="tabD" onclick="showTab('daily')">Daily</div>
+        <div class="tab"    id="tabW" onclick="showTab('weekly')">Weekly</div>
+      </div>
+
+      <!-- Daily -->
+      <div class="pane" id="paneD">
+        <h3>Daily Route Prediction</h3>
+        <div class="fg"><label>Driver ID</label><select id="selDriver"></select></div>
+        <div class="fg"><label>Date</label><input type="date" id="inDate"/></div>
+        <div class="fg">
+          <label>Search & add locations</label>
+          <div class="place-search-wrap">
+            <input type="text" id="placeSearch" placeholder="Type a place name or address…" autocomplete="off"/>
+            <span class="sico">🔍</span>
+          </div>
+        </div>
+        <div style="margin-bottom:10px">
+          <label style="margin-bottom:6px">Selected stops (<span id="stopCount">0</span>) — ML will optimise order</label>
+          <div class="stop-chips" id="stopChips">
+            <span class="empty-hint">Search above or pick from your stores below</span>
+          </div>
+        </div>
+        <div id="storeBrowserWrap" style="display:none;margin-bottom:10px">
+          <label style="margin-bottom:6px">Your stores</label>
+          <div id="storeChips" class="store-chips"></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:10px">
+          <button class="btn btn-s" style="flex:1;margin-top:0;font-size:.75rem" onclick="clearAllStops()">✕ Clear</button>
+          <button class="btn btn-s" style="flex:1;margin-top:0;font-size:.75rem" onclick="pickRandom()">🎲 Random 6</button>
+        </div>
+        <button class="btn btn-p" id="btnPredict" onclick="runDaily()">🚀 Predict Optimal Route</button>
+      </div>
+
+      <!-- Weekly -->
+      <div class="pane" id="paneW" style="display:none">
+        <h3>Weekly Schedule</h3>
+        <div class="fg"><label>Driver ID</label><select id="selDriverW"></select></div>
+        <div class="fg"><label>Week (YYYY-Www)</label><input type="text" id="inWeek" placeholder="2026-W22"/></div>
+        <button class="btn btn-p" onclick="runWeekly()">📅 Generate Weekly Schedule</button>
+      </div>
+
+      <!-- Results -->
+      <div class="pane" id="paneResults" style="display:none">
+        <h3>Route Results <span class="badge badge-live" id="srcBadge">ML</span></h3>
+        <div class="grid2" id="statsGrid"></div>
+        <div style="font-size:.73rem;display:flex;justify-content:space-between">
+          <span style="color:var(--muted)">ML Confidence</span>
+          <span style="color:var(--green);font-weight:700" id="confTxt">—</span>
+        </div>
+        <div class="bar-wrap"><div class="bar-fill" id="confBar" style="width:0"></div></div>
+        <a id="gmLink" href="#" target="_blank" class="btn btn-s">📍 Open in Google Maps</a>
+      </div>
+
+      <!-- Stop list -->
+      <div class="pane" id="paneStops" style="display:none">
+        <h3>ML-Optimised Stop Order</h3>
+        <div id="stopList"></div>
+      </div>
+
+      <!-- Weekly results -->
+      <div class="pane" id="paneWeekly" style="display:none">
+        <h3>Weekly Schedule</h3>
+        <div id="weeklyList"></div>
+      </div>
+    </aside>
+
+    <!-- Map -->
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div id="mapError">
+        <div class="eico">🗺️</div>
+        <div class="etitle">Google Maps didn't load</div>
+        <div class="ebody" id="mapErrorBody">Checking configuration…</div>
+      </div>
+      <div id="legend">
+        <div class="lh">Legend</div>
+        <div class="li"><div class="dot" style="background:var(--accent)"></div>Start</div>
+        <div class="li"><div class="dot" style="background:var(--warn)"></div>Stops</div>
+        <div class="li"><div class="dot" style="background:var(--red)"></div>End</div>
+        <div class="li"><div class="lline" style="background:var(--green)"></div>Road Route</div>
+      </div>
+      <div id="routeStatus"></div>
+      <div id="dbg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════
+const API = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
+  ? 'http://localhost:8000' : '';
+
+// Extracted from the injected Maps script tag so we can use it for Routes API calls
+function _getApiKey(){
+  // The key is in the Maps JS script src — extract it for fetch calls
+  const scripts = document.querySelectorAll('script[src*="maps.googleapis.com"]');
+  for(const s of scripts){
+    const m = s.src.match(/[?&]key=([^&]+)/);
+    if(m) return m[1];
+  }
+  return null;
+}
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let map, dirSvc, autocomplete;
+let _renderers=[], _markers=[], _polylines=[];
+let _allStores=[];
+let _mapsReady=false;
+let _stops=[];   // [{id, name, lat, lng, address}]
+
+// ════════════════════════════════════════
+// DEBUG
+// ════════════════════════════════════════
+function dbg(msg, isErr=false){
+  console[isErr?'error':'log']('[OptiRoute]', msg);
+  const el=document.getElementById('dbg');
+  el.style.display='block';
+  el.style.borderColor=isErr?'#f75555':'#2e3350';
+  el.innerHTML += `<div style="color:${isErr?'#f75555':'#f7a535'}">${msg}</div>`;
+  // auto-hide after 8s
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>{el.style.display='none';el.innerHTML='';},8000);
+}
+
+// ════════════════════════════════════════
+// MAPS INIT
+// ════════════════════════════════════════
+window._mapsLoaded = function(){
+  _mapsReady=true;
+  map=new google.maps.Map(document.getElementById('map'),{
+    center:{lat:17.385,lng:78.487}, zoom:12,
+    mapTypeId:'roadmap',
+    styles:[
+      {elementType:'geometry',stylers:[{color:'#1a1d27'}]},
+      {elementType:'labels.text.stroke',stylers:[{color:'#1a1d27'}]},
+      {elementType:'labels.text.fill',stylers:[{color:'#7b82a8'}]},
+      {featureType:'road',elementType:'geometry',stylers:[{color:'#2e3350'}]},
+      {featureType:'road.arterial',elementType:'geometry',stylers:[{color:'#38405a'}]},
+      {featureType:'road.highway',elementType:'geometry',stylers:[{color:'#4a5270'}]},
+      {featureType:'road.highway',elementType:'geometry.stroke',stylers:[{color:'#1f2540'}]},
+      {featureType:'water',elementType:'geometry',stylers:[{color:'#0d1117'}]},
+      {featureType:'poi',stylers:[{visibility:'off'}]},
+      {featureType:'transit',stylers:[{visibility:'off'}]},
+      {featureType:'administrative.locality',elementType:'labels.text.fill',stylers:[{color:'#9ca3c8'}]},
+    ],
+  });
+  dirSvc=new google.maps.DirectionsService();
+
+  autocomplete=new google.maps.places.Autocomplete(
+    document.getElementById('placeSearch'),
+    {fields:['place_id','name','geometry','formatted_address']}
+  );
+  autocomplete.setBounds(new google.maps.LatLngBounds(
+    {lat:17.1,lng:78.1},{lat:17.8,lng:78.9}
+  ));
+  autocomplete.addListener('place_changed',onPlaceSelected);
+
+  document.getElementById('mapError').style.display='none';
+  document.getElementById('map').style.display='block';
+  dbg('Maps loaded ✓');
+};
+
+window.gm_authFailure=function(){
+  document.getElementById('map').style.display='none';
+  const el=document.getElementById('mapError');
+  el.style.display='flex';
+  document.getElementById('mapErrorBody').innerHTML=
+    '<strong>API key auth failed.</strong><br><br>Check: Maps JavaScript API is enabled, key has no HTTP referrer restrictions blocking localhost, or add <code>localhost/*</code> to allowed referrers.';
+};
+
+// ════════════════════════════════════════
+// PLACE SELECTED
+// ════════════════════════════════════════
+function onPlaceSelected(){
+  const place=autocomplete.getPlace();
+  if(!place.geometry){dbg('No geometry for selected place',true);return;}
+  const stop={
+    id: place.place_id||('p_'+Date.now()),
+    name: place.name||place.formatted_address,
+    address: place.formatted_address||'',
+    lat: place.geometry.location.lat(),
+    lng: place.geometry.location.lng(),
+  };
+  addStop(stop);
+  document.getElementById('placeSearch').value='';
+  if(_mapsReady) pinStops();
+}
+
+// ════════════════════════════════════════
+// STOP MANAGEMENT
+// ════════════════════════════════════════
+function addStop(s){
+  if(_stops.find(x=>x.id===s.id)) return;
+  _stops.push(s);
+  renderStopChips();
+}
+function removeStop(id){
+  _stops=_stops.filter(s=>s.id!==id);
+  renderStopChips();
+  if(_mapsReady) pinStops();
+}
+function clearAllStops(){
+  _stops=[];
+  renderStopChips();
+  clearMap();
+  document.querySelectorAll('.chip.sel').forEach(c=>c.classList.remove('sel'));
+}
+function renderStopChips(){
+  const c=document.getElementById('stopChips');
+  document.getElementById('stopCount').textContent=_stops.length;
+  if(!_stops.length){c.innerHTML='<span class="empty-hint">Search above or pick from your stores below</span>';return;}
+  c.innerHTML=_stops.map((s,i)=>`
+    <div class="stop-chip">
+      <span class="cnum">${i+1}</span>
+      <span title="${s.address}">${s.name}</span>
+      <button class="cdel" onclick="removeStop('${s.id}')">✕</button>
+    </div>`).join('');
+}
+function pinStops(){
+  _markers.forEach(m=>m.setMap(null)); _markers=[];
+  if(!map||!_stops.length) return;
+  const bounds=new google.maps.LatLngBounds();
+  _stops.forEach((s,i)=>{
+    const m=new google.maps.Marker({
+      position:{lat:s.lat,lng:s.lng},map,
+      title:s.name,
+      label:{text:String(i+1),color:'#fff',fontWeight:'bold',fontSize:'11px'},
+      icon:{path:google.maps.SymbolPath.CIRCLE,scale:13,fillColor:'#5c6ef8',fillOpacity:.9,strokeColor:'#fff',strokeWeight:2},
+      zIndex:10,
+    });
+    _markers.push(m);
+    bounds.extend({lat:s.lat,lng:s.lng});
+  });
+  if(_stops.length===1) map.setCenter({lat:_stops[0].lat,lng:_stops[0].lng}),map.setZoom(15);
+  else map.fitBounds(bounds,{top:60,right:60,bottom:80,left:60});
+}
+
+// ════════════════════════════════════════
+// APP INIT
+// ════════════════════════════════════════
+window.addEventListener('DOMContentLoaded',async()=>{
+  setDefaults();
+  await Promise.all([checkHealth(),loadDrivers(),loadStores()]);
+});
+
+async function checkHealth(){
+  try{
+    const r=await fetch(`${API}/health`);
+    const d=await r.json();
+    const pill=document.getElementById('pill');
+    if(d.google_maps_mode==='live'){pill.textContent='● Maps Live';pill.className='pill pill-live';}
+    else{pill.textContent='● Mock Mode';pill.className='pill pill-mock';}
+    dbg(`Health OK | model:${d.model_loaded} data:${d.data_loaded} maps:${d.google_maps_mode}`);
+  }catch(e){
+    document.getElementById('pill').textContent='● API Offline';
+    dbg('Health check failed: '+e.message,true);
+  }
+}
+
+async function loadDrivers(){
+  try{
+    const r=await fetch(`${API}/drivers`);
+    const list=await r.json();
+    const ids=list.length?list.map(d=>d.driver_id):Array.from({length:12},(_,i)=>`D${String(i+1).padStart(2,'0')}`);
+    const html=ids.map(id=>`<option value="${id}">${id}</option>`).join('');
+    document.getElementById('selDriver').innerHTML=html;
+    document.getElementById('selDriverW').innerHTML=html;
+  }catch{
+    const html=Array.from({length:12},(_,i)=>`<option value="D${String(i+1).padStart(2,'0')}">D${String(i+1).padStart(2,'0')}</option>`).join('');
+    document.getElementById('selDriver').innerHTML=html;
+    document.getElementById('selDriverW').innerHTML=html;
+  }
+}
+
+async function loadStores(){
+  try{
+    const r=await fetch(`${API}/stores`);
+    _allStores=await r.json();
+    if(_allStores.length) renderStoreChips();
+  }catch(e){console.warn('Stores:',e);}
+}
+
+function renderStoreChips(){
+  const wrap=document.getElementById('storeBrowserWrap');
+  const el=document.getElementById('storeChips');
+  if(!_allStores.length){wrap.style.display='none';return;}
+  wrap.style.display='';
+  el.innerHTML=_allStores.slice(0,40).map(s=>`
+    <div class="chip" id="chip_${s.store_id}"
+         onclick="toggleStore('${s.store_id}','${(s.store_name||s.store_id).replace(/'/g,'')}',${parseFloat(s.latitude)||17.4085},${parseFloat(s.longitude)||78.4772},'${(s.address||'').replace(/'/g,'')}')">
+      ${s.store_name?`<b>${s.store_name}</b> <span style="opacity:.6;font-size:.64rem">${s.store_id}</span>`:s.store_id}
+    </div>`).join('');
+}
+
+function toggleStore(id,name,lat,lng,address){
+  if(_stops.find(s=>s.id===id)){
+    removeStop(id);
+    document.getElementById('chip_'+id)?.classList.remove('sel');
+  }else{
+    addStop({id,name,lat,lng,address});
+    document.getElementById('chip_'+id)?.classList.add('sel');
+    if(_mapsReady) pinStops();
+  }
+}
+
+function pickRandom(){
+  clearAllStops();
+  _allStores.slice().sort(()=>Math.random()-.5).slice(0,6).forEach(s=>{
+    _stops.push({id:s.store_id,name:s.store_name||s.store_id,lat:parseFloat(s.latitude)||17.4085+Math.random()*.1,lng:parseFloat(s.longitude)||78.4772+Math.random()*.1,address:s.address||''});
+    document.getElementById('chip_'+s.store_id)?.classList.add('sel');
+  });
+  renderStopChips();
+  if(_mapsReady) pinStops();
+}
+
+function setDefaults(){
+  const now=new Date();
+  document.getElementById('inDate').value=now.toISOString().split('T')[0];
+  document.getElementById('inWeek').value=`${now.getFullYear()}-W${String(isoWeek(now)).padStart(2,'0')}`;
+}
+function isoWeek(d){
+  const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  t.setUTCDate(t.getUTCDate()+4-(t.getUTCDay()||7));
+  return Math.ceil((((t-new Date(Date.UTC(t.getUTCFullYear(),0,1)))/86400000)+1)/7);
+}
+
+// ════════════════════════════════════════
+// DAILY PREDICTION
+// ════════════════════════════════════════
+async function runDaily(){
+  const driver=document.getElementById('selDriver').value;
+  const date=document.getElementById('inDate').value;
+  if(!driver||!date){alert('Select driver and date.');return;}
+  if(_stops.length<2){alert('Add at least 2 stops.');return;}
+
+  const btn=document.getElementById('btnPredict');
+  btn.disabled=true; btn.textContent='⏳ Predicting…';
+  clearMap(); hide('paneResults'); hide('paneStops'); hide('paneWeekly'); hide('legend');
+
+  try{
+    const locationIds=_stops.map(s=>s.id);
+    dbg(`Sending ${locationIds.length} stops to ML model…`);
+
+    const r=await fetch(`${API}/predict/daily`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({driver_id:driver,date,locations:locationIds}),
+    });
+    if(!r.ok){const e=await r.json();throw new Error(e.detail||`HTTP ${r.status}`);}
+    const data=await r.json();
+
+    dbg(`ML returned ${data.recommended_route.length} stops | confidence:${(data.confidence*100).toFixed(0)}% | score:${(data.route_score*100).toFixed(0)}%`);
+
+    // Enrich stops: use our local name/address if model returned generic names
+    const enriched=(data.stops||[]).map(ms=>{
+      const local=_stops.find(s=>s.id===ms.store_id);
+      return{
+        ...ms,
+        name:(ms.name&&ms.name!==ms.store_id)?ms.name:(local?.name||ms.store_id),
+        address:ms.address||local?.address||'',
+        lat:ms.lat||(local?.lat)||17.4,
+        lng:ms.lng||(local?.lng)||78.4,
+      };
+    });
+
+    renderDaily({...data,stops:enriched});
+  }catch(e){
+    alert('Prediction error: '+e.message);
+    dbg('Predict failed: '+e.message,true);
+  }finally{
+    btn.disabled=false; btn.textContent='🚀 Predict Optimal Route';
+  }
+}
+
+function renderDaily(data){
+  show('paneResults'); show('paneStops');
+
+  const badge=document.getElementById('srcBadge');
+  badge.textContent='ML + ROADS'; badge.className='badge badge-live';
+
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="card"><div class="v">${data.total_distance_km} km</div><div class="l">Total Distance</div></div>
+    <div class="card"><div class="v">${Math.round(data.travel_time_min)} min</div><div class="l">Travel Time</div></div>
+    <div class="card"><div class="v">${data.recommended_route.length}</div><div class="l">Stops</div></div>
+    <div class="card"><div class="v">${Math.round(data.route_score*100)}%</div><div class="l">Route Score</div></div>`;
+
+  const conf=Math.round(data.confidence*100);
+  document.getElementById('confTxt').textContent=conf+'%';
+  document.getElementById('confBar').style.width=conf+'%';
+  document.getElementById('gmLink').href=data.google_maps_url||data.google_maps_link||'#';
+
+  const stops=data.stops||[];
+  document.getElementById('stopList').innerHTML=stops.map((s,i)=>{
+    const isFirst=i===0,isLast=i===stops.length-1;
+    const color=isFirst?'#5c6ef8':isLast?'#f75555':'#f7a535';
+    const eta=s.eta_min?`<div class="seta">🕒 +${Math.round(s.eta_min)} min from prev</div>`:'';
+    const score=s.score?`<div class="sscore">ML score: ${(s.score*100).toFixed(0)}%</div>`:'';
+    return`<div class="stop-row">
+      <div class="stop-num" style="background:${color}">${i+1}</div>
+      <div>
+        <div class="sname">${s.name||s.store_id}</div>
+        <div class="smeta" style="color:var(--accent)">${s.store_id}</div>
+        <div class="smeta">${s.address||''}</div>
+        ${eta}${score}
+      </div></div>`;
+  }).join('');
+
+  if(_mapsReady&&stops.length>=2){
+    show('legend');
+    drawMarkersNamed(stops);
+    // ★ Draw actual road path using DirectionsService → Routes API fallback
+    drawRealRoads(stops,'#00c896');
+  }
+}
+
+// ════════════════════════════════════════
+// WEEKLY
+// ════════════════════════════════════════
+async function runWeekly(){
+  const driver=document.getElementById('selDriverW').value;
+  const week=document.getElementById('inWeek').value.trim();
+  if(!driver||!week){alert('Fill all fields.');return;}
+  clearMap();hide('paneResults');hide('paneStops');
+  show('paneWeekly');
+  document.getElementById('weeklyList').innerHTML='<div class="spin"></div>';
+  try{
+    const r=await fetch(`${API}/predict/weekly`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({driver_id:driver,week})});
+    const data=await r.json();
+    renderWeekly(data,driver);
+  }catch(e){document.getElementById('weeklyList').innerHTML=`<div style="color:var(--red)">${e.message}</div>`;}
+}
+
+const DAY_COLORS=['#5c6ef8','#00c896','#f7a535','#f75555','#c084fc'];
+const DAY_NAMES=['monday','tuesday','wednesday','thursday','friday'];
+
+function renderWeekly(data,driverId){
+  let html=`<div class="grid2">
+    <div class="card"><div class="v">${data.weekly_distance_km} km</div><div class="l">Weekly Distance</div></div>
+    <div class="card"><div class="v">${Math.round(data.avg_confidence*100)}%</div><div class="l">Avg Confidence</div></div>
+  </div>`;
+  DAY_NAMES.forEach((day,i)=>{
+    const stops=data[day]||[];
+    if(!stops.length)return;
+    const plan=data.day_plans?.[i]||{};
+    html+=`<div class="day-card" onclick='showDayRoute("${driverId}","${plan.date||''}",${JSON.stringify(stops)},"${DAY_COLORS[i]}")'>
+      <div style="font-weight:700;font-size:.8rem;color:${DAY_COLORS[i]};margin-bottom:3px">${day.charAt(0).toUpperCase()+day.slice(1)} — ${plan.date||''}</div>
+      <div style="font-size:.72rem;color:var(--muted)">${stops.length} stops · ${plan.distance_km||'?'} km · ${Math.round(plan.travel_time_min||0)} min</div>
+      <div style="font-size:.71rem;color:var(--muted);margin-top:2px">${stops.slice(0,4).join(' → ')}${stops.length>4?' → …':''}</div>
+    </div>`;
+  });
+  document.getElementById('weeklyList').innerHTML=html;
+}
+
+async function showDayRoute(driverId,date,stops,color){
+  if(!date||!stops.length)return;
+  clearMap();show('legend');
+  try{
+    const r=await fetch(`${API}/predict/daily`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({driver_id:driverId,date,locations:stops})});
+    const data=await r.json();
+    drawMarkersNamed(data.stops||[]);
+    drawRealRoads(data.stops||[],color);
+  }catch(e){console.error(e);}
+}
+
+// ════════════════════════════════════════
+// MARKERS
+// ════════════════════════════════════════
+function drawMarkersNamed(stops){
+  stops.forEach((s,i)=>{
+    const isFirst=i===0,isLast=i===stops.length-1;
+    const color=isFirst?'#5c6ef8':isLast?'#f75555':'#f7a535';
+    const m=new google.maps.Marker({
+      position:{lat:s.lat,lng:s.lng},map,
+      title:s.name||s.store_id,
+      label:{text:String(i+1),color:'#fff',fontWeight:'bold',fontSize:'12px'},
+      icon:{path:google.maps.SymbolPath.CIRCLE,scale:15,fillColor:color,fillOpacity:1,strokeColor:'#fff',strokeWeight:2.5},
+      zIndex:20+i,
+    });
+    const eta=s.eta_min?`<div style="color:#00c896;font-size:.78rem;margin-top:4px">🕒 +${Math.round(s.eta_min)} min</div>`:'';
+    const score=s.score?`<div style="color:#5c6ef8;font-size:.72rem;margin-top:3px">ML score: ${(s.score*100).toFixed(0)}%</div>`:'';
+    const iw=new google.maps.InfoWindow({content:`
+      <div style="background:#1a1d27;color:#e8eaf6;padding:13px 16px;border-radius:9px;min-width:200px;font-family:sans-serif">
+        <div style="font-weight:700;font-size:.85rem;color:#7b82a8">Stop ${i+1} of ${stops.length}</div>
+        <div style="font-weight:700;font-size:1rem;margin:4px 0 2px">${s.name||s.store_id}</div>
+        <div style="font-size:.78rem;color:#7b82a8">${s.address||''}</div>
+        <div style="font-size:.72rem;color:#5c6ef8;margin-top:2px">${s.store_id}</div>
+        ${eta}${score}
+      </div>`});
+    m.addListener('click',()=>iw.open(map,m));
+    _markers.push(m);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ★ DRAW REAL ROADS  — 3-layer strategy:
+//
+//  Layer 1: google.maps.DirectionsService (Maps JS API, client-side)
+//           Works when key has no referrer restrictions / localhost allowed.
+//           Uses DRIVING mode → actual road geometry.
+//
+//  Layer 2: Routes API via fetch (REST, same key)
+//           Works even when DirectionsService fails due to JS SDK issues.
+//           POST to https://routes.googleapis.com/directions/v2:computeRoutes
+//
+//  Layer 3: Server /route/polyline
+//           Server-side key, no browser restrictions at all.
+//
+// We try Layer 1. If ANY chunk returns non-OK, we immediately jump to
+// Layer 2 (Routes API fetch), then Layer 3 if that fails too.
+// ════════════════════════════════════════════════════════════════════
+function drawRealRoads(stops, color){
+  color=color||'#00c896';
+  if(!stops||stops.length<2||!map)return;
+
+  const bounds=new google.maps.LatLngBounds();
+  stops.forEach(s=>bounds.extend({lat:s.lat,lng:s.lng}));
+  const fitMap=()=>map.fitBounds(bounds,{top:60,right:60,bottom:80,left:60});
+
+  setStatus('🛣️ Loading road route…');
+
+  // ── Layer 1: DirectionsService ──────────────────────
+  if(!dirSvc){ _tryRoutesAPI(stops,color,fitMap); return; }
+
+  const CHUNK=10;
+  const chunks=[];
+  for(let i=0;i<stops.length-1;i+=CHUNK-1)
+    chunks.push(stops.slice(i,Math.min(i+CHUNK,stops.length)));
+
+  let done=0, anyFailed=false;
+  const localRenderers=[];
+
+  chunks.forEach((chunk,ci)=>{
+    const renderer=new google.maps.DirectionsRenderer({
+      map,suppressMarkers:true,preserveViewport:true,
+      polylineOptions:{strokeColor:color,strokeOpacity:.92,strokeWeight:6,zIndex:10},
+    });
+    localRenderers.push(renderer);
+    _renderers.push(renderer);
+
+    dirSvc.route({
+      origin:      new google.maps.LatLng(chunk[0].lat,chunk[0].lng),
+      destination: new google.maps.LatLng(chunk[chunk.length-1].lat,chunk[chunk.length-1].lng),
+      waypoints:   chunk.slice(1,-1).map(s=>({location:new google.maps.LatLng(s.lat,s.lng),stopover:true})),
+      travelMode:  google.maps.TravelMode.DRIVING,
+      optimizeWaypoints:false,
+    },(result,status)=>{
+      done++;
+      if(status==='OK'){
+        renderer.setDirections(result);
+        dbg(`DirectionsService chunk ${ci+1}/${chunks.length} ✓`);
+      } else {
+        anyFailed=true;
+        dbg(`DirectionsService chunk ${ci+1} FAILED: ${status} → trying Routes API`,true);
+      }
+
+      if(done===chunks.length){
+        if(anyFailed){
+          // Remove partial renders
+          localRenderers.forEach(r=>{r.setMap(null);_renderers=_renderers.filter(x=>x!==r);});
+          _tryRoutesAPI(stops,color,fitMap);
+        } else {
+          setStatus('✅ Real road route loaded');
+          setTimeout(()=>setStatus(''),3000);
+          fitMap();
+        }
+      }
+    });
+  });
+}
+
+// ── Layer 2: Routes API REST ─────────────────────────
+async function _tryRoutesAPI(stops, color, fitMap){
+  setStatus('🛣️ Fetching via Routes API…');
+  const key=_getApiKey();
+  if(!key){ dbg('No API key found for Routes API call',true); _tryServerPolyline(stops,color,fitMap); return; }
+
+  try{
+    // Build intermediates (waypoints between origin and destination)
+    const intermediates=stops.slice(1,-1).map(s=>({
+      location:{latLng:{latitude:s.lat,longitude:s.lng}}
+    }));
+
+    const body={
+      origin:      {location:{latLng:{latitude:stops[0].lat,          longitude:stops[0].lng}}},
+      destination: {location:{latLng:{latitude:stops[stops.length-1].lat, longitude:stops[stops.length-1].lng}}},
+      travelMode:'DRIVE',
+      polylineQuality:'HIGH_QUALITY',
+      computeAlternativeRoutes:false,
+      routeModifiers:{avoidTolls:false,avoidHighways:false,avoidFerries:false},
+    };
+    if(intermediates.length) body.intermediates=intermediates;
+
+    const resp=await fetch(
+      'https://routes.googleapis.com/directions/v2:computeRoutes',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'X-Goog-Api-Key': key,
+          'X-Goog-FieldMask':'routes.polyline.encodedPolyline,routes.distanceMeters,routes.duration,routes.legs',
+        },
+        body:JSON.stringify(body),
+      }
+    );
+
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({error:{message:resp.statusText}}));
+      throw new Error(err?.error?.message||`HTTP ${resp.status}`);
+    }
+
+    const data=await resp.json();
+    if(!data.routes||!data.routes.length) throw new Error('No routes returned');
+
+    const route=data.routes[0];
+    const pts=_decodePolyline(route.polyline.encodedPolyline);
+
+    const poly=new google.maps.Polyline({
+      path:pts,map,
+      strokeColor:color,strokeOpacity:.92,strokeWeight:6,zIndex:10,
+    });
+    _polylines.push(poly);
+
+    const distKm=(route.distanceMeters/1000).toFixed(1);
+    const durMin=Math.round(parseInt(route.duration)/60);
+    dbg(`Routes API ✓ — ${distKm} km, ${durMin} min, ${pts.length} road points`);
+    setStatus(`✅ Real roads loaded — ${distKm} km · ${durMin} min`);
+    setTimeout(()=>setStatus(''),4000);
+    if(fitMap) fitMap();
+
+  }catch(e){
+    dbg(`Routes API failed: ${e.message} → trying server fallback`,true);
+    _tryServerPolyline(stops,color,fitMap);
+  }
+}
+
+// ── Layer 3: Server /route/polyline ──────────────────
+async function _tryServerPolyline(stops, color, fitMap){
+  setStatus('🛣️ Fetching road geometry from server…');
+  try{
+    const r=await fetch(`${API}/route/polyline`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({coordinates:stops.map(s=>({lat:s.lat,lng:s.lng}))}),
+    });
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data=await r.json();
+    const pts=data.polyline_points||stops.map(s=>({lat:s.lat,lng:s.lng}));
+
+    new google.maps.Polyline({path:pts,map,strokeColor:color,strokeOpacity:.9,strokeWeight:6,zIndex:10,geodesic:true});
+    dbg(`Server polyline: ${data.source}, ${pts.length} pts`);
+    setStatus(data.source==='directions_api'?'✅ Road route (server)':'⚠️ Estimated path — check API key');
+    setTimeout(()=>setStatus(''),5000);
+  }catch(e){
+    dbg('All routing methods failed: '+e.message,true);
+    // Absolute last resort
+    new google.maps.Polyline({path:stops.map(s=>({lat:s.lat,lng:s.lng})),map,strokeColor:color,strokeOpacity:.6,strokeWeight:4,geodesic:true,zIndex:9});
+    setStatus('⚠️ No road data — check Google Cloud Console');
+    setTimeout(()=>setStatus(''),6000);
+  }
+  if(fitMap) fitMap();
+}
+
+// ── Decode Google encoded polyline ───────────────────
+function _decodePolyline(enc){
+  const pts=[]; let idx=0,lat=0,lng=0;
+  while(idx<enc.length){
+    let b,shift=0,result=0;
+    do{b=enc.charCodeAt(idx++)-63;result|=(b&0x1f)<<shift;shift+=5;}while(b>=0x20);
+    lat+=(result&1)?~(result>>1):(result>>1);
+    shift=0;result=0;
+    do{b=enc.charCodeAt(idx++)-63;result|=(b&0x1f)<<shift;shift+=5;}while(b>=0x20);
+    lng+=(result&1)?~(result>>1):(result>>1);
+    pts.push({lat:lat*1e-5,lng:lng*1e-5});
+  }
+  return pts;
+}
+
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+function clearMap(){
+  _markers.forEach(m=>m.setMap(null));_markers=[];
+  _polylines.forEach(p=>p.setMap(null));_polylines=[];
+  _renderers.forEach(r=>r.setMap(null));_renderers=[];
+  setStatus('');
+}
+function setStatus(msg){
+  const el=document.getElementById('routeStatus');
+  el.textContent=msg;el.style.display=msg?'block':'none';
+}
+function showTab(t){
+  document.getElementById('paneD').style.display=t==='daily'?'':'none';
+  document.getElementById('paneW').style.display=t==='weekly'?'':'none';
+  document.getElementById('tabD').className='tab'+(t==='daily'?' on':'');
+  document.getElementById('tabW').className='tab'+(t==='weekly'?' on':'');
+  clearMap();hide('paneResults');hide('paneStops');hide('paneWeekly');hide('legend');
+}
+function show(id){const e=document.getElementById(id);if(e)e.style.display='';}
+function hide(id){const e=document.getElementById(id);if(e)e.style.display='none';}
+</script>
+
+<!-- Key injected server-side. Required: Maps JS API, Directions API, Routes API, Places API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=__GMAPS_KEY__&callback=_mapsLoaded&libraries=places,geometry&loading=async" async defer></script>
+</body>
+</html>
